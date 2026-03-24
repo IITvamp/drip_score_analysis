@@ -117,32 +117,186 @@ Analyze an uploaded/local image (no webcam):
 python app.py --image /absolute/path/to/photo.jpg
 ```
 
-### Recommended commands for reliable results
+Capture one frame from webcam (no GUI window) and run full analysis:
+```bash
+python app.py --capture
+```
 
-If you are using the local project env:
+### Test commands (copy/paste)
+
+Use project venv first:
 ```bash
 source .venv311/bin/activate
 ```
 
-Single image, **strict male** body-profile matching, fast Celeb demo index:
+#### A) Uploaded image tests
+
+Quick smoke test (no fashion model; fastest):
 ```bash
-DRIP_CELEB_DEMO_MAX_ROWS=300 DRIP_QUERY_GENDER=0 DRIP_ENABLE_FASHION_MODEL=0 python app.py --image img4.jpg
+DRIP_ENABLE_FASHION_MODEL=0 python app.py --image img4.jpg
 ```
 
-Single image, **strict female** body-profile matching, fast Celeb demo index:
+Uploaded image + strict male body-profile matching:
 ```bash
-DRIP_CELEB_DEMO_MAX_ROWS=300 DRIP_QUERY_GENDER=1 DRIP_ENABLE_FASHION_MODEL=0 python app.py --image img4.jpg
+DRIP_QUERY_GENDER=0 DRIP_ENABLE_FASHION_MODEL=1 DRIP_EMBED_BACKEND=hf_clip DRIP_EMBED_SUBPROCESS=1 python app.py --image img4.jpg
 ```
 
-Single image with fashion retrieval enabled (HF CLIP):
+Uploaded image + strict female body-profile matching:
+```bash
+DRIP_QUERY_GENDER=1 DRIP_ENABLE_FASHION_MODEL=1 DRIP_EMBED_BACKEND=hf_clip DRIP_EMBED_SUBPROCESS=1 python app.py --image img4.jpg
+```
+
+Uploaded image + demo Celeb index (faster startup):
 ```bash
 DRIP_CELEB_DEMO_MAX_ROWS=300 DRIP_QUERY_GENDER=0 DRIP_ENABLE_FASHION_MODEL=1 DRIP_EMBED_BACKEND=hf_clip DRIP_EMBED_SUBPROCESS=1 python app.py --image img4.jpg
 ```
 
-Production-like full Celeb body index (no demo limit):
+Uploaded image + full production-like run:
 ```bash
 DRIP_QUERY_GENDER=0 DRIP_ENABLE_FASHION_MODEL=1 DRIP_EMBED_BACKEND=hf_clip DRIP_EMBED_SUBPROCESS=1 python app.py --image img4.jpg
 ```
+
+#### B) Camera tests
+
+Interactive live webcam mode (S scan, R reset, D debug, Q quit):
+```bash
+DRIP_QUERY_GENDER=0 DRIP_ENABLE_FASHION_MODEL=1 DRIP_EMBED_BACKEND=hf_clip DRIP_EMBED_SUBPROCESS=1 python app.py
+```
+
+One-shot camera capture mode (recommended on macOS stability issues):
+```bash
+DRIP_QUERY_GENDER=0 DRIP_ENABLE_FASHION_MODEL=1 DRIP_EMBED_BACKEND=hf_clip DRIP_EMBED_SUBPROCESS=1 DRIP_EMBED_SUBPROCESS_TIMEOUT_S=20 python app.py --capture
+```
+
+Camera one-shot without fashion retrieval (fastest, no CLIP dependency):
+```bash
+DRIP_QUERY_GENDER=0 DRIP_ENABLE_FASHION_MODEL=0 python app.py --capture
+```
+
+#### C) Dataset/index prep commands
+
+Rebuild DeepFashion FAISS index (HF CLIP, quick demo):
+```bash
+python dataset_builder.py --backend hf_clip --max 500
+```
+
+Rebuild DeepFashion FAISS index (HF CLIP, full):
+```bash
+python dataset_builder.py --backend hf_clip
+```
+
+Prefetch Celeb thumbnails quickly:
+```bash
+python prefetch_celeb_images.py --limit 1000
+```
+
+Prefetch all Celeb thumbnails:
+```bash
+python prefetch_celeb_images.py
+```
+
+### Recommended commands for reliable results
+
+### Edge cases and how to run them
+
+#### 1) Filter similar body profiles by gender
+
+Strict male-only body-profile retrieval:
+```bash
+DRIP_QUERY_GENDER=0 DRIP_ENABLE_FASHION_MODEL=1 DRIP_EMBED_BACKEND=hf_clip DRIP_EMBED_SUBPROCESS=1 python app.py --image img4.jpg
+```
+
+Strict female-only body-profile retrieval:
+```bash
+DRIP_QUERY_GENDER=1 DRIP_ENABLE_FASHION_MODEL=1 DRIP_EMBED_BACKEND=hf_clip DRIP_EMBED_SUBPROCESS=1 python app.py --image img4.jpg
+```
+
+No gender filter (mixed candidates allowed):
+```bash
+DRIP_ENABLE_FASHION_MODEL=1 DRIP_EMBED_BACKEND=hf_clip DRIP_EMBED_SUBPROCESS=1 python app.py --image img4.jpg
+```
+
+#### 2) Fashion embedding/model is slow or hangs
+
+Set subprocess timeout (recommended):
+```bash
+DRIP_EMBED_SUBPROCESS=1 DRIP_EMBED_SUBPROCESS_TIMEOUT_S=20 DRIP_ENABLE_FASHION_MODEL=1 DRIP_EMBED_BACKEND=hf_clip python app.py --capture
+```
+
+Disable fashion retrieval completely (fastest and safest):
+```bash
+DRIP_ENABLE_FASHION_MODEL=0 python app.py --image img4.jpg
+```
+
+#### 3) Camera mode crashes/stability issues on macOS GUI
+
+Use one-shot camera capture mode (no OpenCV window):
+```bash
+DRIP_QUERY_GENDER=0 DRIP_ENABLE_FASHION_MODEL=1 DRIP_EMBED_BACKEND=hf_clip DRIP_EMBED_SUBPROCESS=1 DRIP_EMBED_SUBPROCESS_TIMEOUT_S=20 python app.py --capture
+```
+
+#### 4) Face not detected / poor lighting
+
+If report says "Face not detected", capture with better light and visible face:
+```bash
+DRIP_ENABLE_FASHION_MODEL=0 python app.py --capture
+```
+Then retry with fashion enabled once face detection is stable:
+```bash
+DRIP_ENABLE_FASHION_MODEL=1 DRIP_EMBED_BACKEND=hf_clip DRIP_EMBED_SUBPROCESS=1 python app.py --capture
+```
+
+#### 5) Quick demo vs full production index
+
+Fast demo (smaller Celeb index):
+```bash
+DRIP_CELEB_DEMO_MAX_ROWS=300 DRIP_QUERY_GENDER=0 DRIP_ENABLE_FASHION_MODEL=1 DRIP_EMBED_BACKEND=hf_clip python app.py --image img4.jpg
+```
+
+Full production-like Celeb index:
+```bash
+DRIP_QUERY_GENDER=0 DRIP_ENABLE_FASHION_MODEL=1 DRIP_EMBED_BACKEND=hf_clip python app.py --image img4.jpg
+```
+
+#### 6) Rebuild dataset/index from scratch
+
+Delete old DeepFashion index artifacts:
+```bash
+rm -f cache/faiss_index.bin cache/metadata.json cache/build_info.json
+```
+
+Rebuild quick:
+```bash
+python dataset_builder.py --backend hf_clip --max 500
+```
+
+Rebuild full:
+```bash
+python dataset_builder.py --backend hf_clip
+```
+
+#### 7) Celeb thumbnails missing for some body matches
+
+Prefetch a subset quickly:
+```bash
+python prefetch_celeb_images.py --limit 1000
+```
+
+Prefetch all:
+```bash
+python prefetch_celeb_images.py
+```
+
+#### 8) High fashion score confusion
+
+Fashion retrieval score is based on count of matches with similarity >= 0.80:
+- `2 points` per match
+- capped at `20`
+
+To inspect this in report JSON, open:
+- `score.values.fashion_retrieval`
+- `score.explanations.fashion_retrieval`
+- `score.calculation.fashion_component`
 
 ### Output artifacts (for visualization)
 
@@ -157,6 +311,15 @@ For input `img4.jpg`, these files are generated in `cache/`:
 - complete score breakdown (pillar max + value + explanation)
 - fashion matches with similarity scores
 - similar body profiles with similarity scores + thumbnail paths
+
+Uploaded image example (`img4.jpg`) writes:
+- `cache/result_img4.jpg`
+- `cache/report_img4.json`
+
+Camera one-shot (`--capture`) writes:
+- `cache/camera_capture.jpg`
+- `cache/result_camera_capture.jpg`
+- `cache/report_camera_capture.json`
 
 Enable FashionSigLIP outfit-matching model (optional):
 ```bash
