@@ -133,7 +133,7 @@ def build_result_panel(frame_bgr, result, matches, match_images,
         ("Color season",     result["color_season"],     15, result["breakdown"]["season"]),
         ("Grooming",         result["grooming"],         15, result["breakdown"]["grooming"]),
         ("Style coherence",  result["style_coherence"],  10, result["breakdown"]["coherence"]),
-        ("Fashion matches",  result["fashion_retrieval"], 20, result["breakdown"]["fashion_retrieval"]),
+        ("Fashion matches",  result["fashion_retrieval"], 10, result["breakdown"]["fashion_retrieval"]),
     ]
 
     py = ry + 50
@@ -502,7 +502,7 @@ class DripScoreApp:
             "color_season": 15,
             "grooming": 15,
             "style_coherence": 10,
-            "fashion_retrieval": 20,
+            "fashion_retrieval": 10,
             "total": 100,
         }
 

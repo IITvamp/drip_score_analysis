@@ -34,7 +34,7 @@ Webcam frame
                                sorted by cosine similarity (descending)
 
 Score = Fit (20) + Harmony (20) + Season (15) + Grooming (15)
-      + Coherence (10) + Fashion retrieval strength (20) = 100
+      + Coherence (10) + Fashion retrieval strength (10) = 100
 ```
 
 ### Similarity formulas
@@ -377,20 +377,8 @@ DRIP_FASHIONCLIP_PYTHON=.venv-fashionclip/bin/python DRIP_EMBED_SUBPROCESS=1 DRI
 | Color season match | 15 | Clothing vs skin tone seasonal palette |
 | Grooming | 15 | Hair neatness, collar presence, accessories |
 | Style coherence | 10 | Single coherent aesthetic vs mixed signals |
-| Fashion retrieval strength | 20 | Number of DeepFashion matches with similarity >= 0.80 (2 points each, capped at 20) |
+| Fashion retrieval strength | 10 | Number of DeepFashion matches with similarity >= 0.80 (2 points each, capped at 10) |
 
-## Score bands
-
-| Score | Label | Commentary style |
-|-------|-------|-----------------|
-| 0–30 | NEEDS WORK | "HR wants a word." |
-| 31–45 | MEDIOCRE | "Business casual. But which business?" |
-| 46–60 | DECENT | "B- energy. You read the memo." |
-| 61–75 | SHARP | "The fit is doing the networking for you." |
-| 76–85 | ELEVATED | "Your outfit has a 5-year plan." |
-| 86–100 | DRIP LORD | "The CEO is taking notes on YOUR fit." |
-
----
 
 ## Perspective normalization
 
