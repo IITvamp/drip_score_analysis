@@ -1,0 +1,47 @@
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Virtual environments
+.venv/
+.venv*/
+venv/
+env/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Local env / secrets
+.env
+.env.*
+*.key
+*.pem
+*.crt
+
+# Project-generated cache and outputs
+cache/
+faiss_index.bin
+metadata.json
+build_info.json
+
+# Media/test artifacts
+*.mp4
+*.mov
+*.avi
